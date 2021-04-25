@@ -42,3 +42,27 @@ def create_user():
     db.add(user)
     db.commit()
     return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/users', methods=['PUT'])
+def edit_user():
+    if not request.json:
+        return jsonify({'error': 'Empty request'})
+    elif 'id' not in request.json:
+        return jsonify({'error': 'Bad request'})
+    db = db_session.create_session()
+    if not db.query(User).filter(User.id == request.json['id']).first():
+        return jsonify({'error': 'Bad request'})
+    if 'email' in list(request.json.keys()):
+        user = db.query(User).filter(User.email == request.json['email']).first()
+        if user:
+            return jsonify({'error': 'User with this email already exists'})
+    user.surname = request.json.get('surname', user.surname)
+    user.name = request.json.get('name', user.name)
+    user.age = request.json.get('age', user.age)
+    user.position = request.json.get('position', user.position)
+    user.speciality = request.json.get('speciality', user.speciality)
+    user.address = request.json.get('address', user.address)
+    user.email = request.json.get('email', user.email)
+    db.commit()
+    return jsonify({'success': 'OK'})
