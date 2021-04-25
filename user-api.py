@@ -21,8 +21,7 @@ def get_one_user(user_id):
     db = db_session.create_session()
     if not db.query(User).get(user_id):
         return jsonify({'error': 'Not found'})
-    else:
-        return jsonify({'users': db.query(User).get(user_id).to_dict(only=('id', 'surname', 'name', 'age', 'position', 'speciality', 'address', 'email', 'hashed_password', 'modified', 'city_from'))})
+    return jsonify({'users': db.query(User).get(user_id).to_dict(only=('id', 'surname', 'name', 'age', 'position', 'speciality', 'address', 'email', 'hashed_password', 'modified', 'city_from'))})
 
     
 @blueprint.route('/api/users', methods=['POST'])
@@ -31,14 +30,17 @@ def create_user():
         return jsonify({'error': 'Empty request'})
     elif not all(key in request.json for key in ['id', 'surname',  'name', 'age', 'position', 'speciality', 'address', 'email', 'password']):
         return jsonify({'error': 'Bad request'})
+    
     db = db_session.create_session()
     if db.query(User).get(request.json['id']):
         return jsonify({'error': 'Id already exists'})
     if db.query(User).filter(User.email == request.json['email']).first():
         return jsonify({'error': 'User with this email already exists'})
+    
     user = User(id=request.json['id'], surname=request.json['surname'], name=request.json['name'], age=request.json['age'],
                 position=request.json['position'], speciality=request.json['speciality'], address=request.json['address'], email=request.json['email'])
     user.set_password(request.json['password'])
+    
     db.add(user)
     db.commit()
     return jsonify({'success': 'OK'})
@@ -50,6 +52,7 @@ def edit_user():
         return jsonify({'error': 'Empty request'})
     elif 'id' not in request.json:
         return jsonify({'error': 'Bad request'})
+    
     db = db_session.create_session()
     if not db.query(User).filter(User.id == request.json['id']).first():
         return jsonify({'error': 'Bad request'})
@@ -57,6 +60,7 @@ def edit_user():
         user = db.query(User).filter(User.email == request.json['email']).first()
         if user:
             return jsonify({'error': 'User with this email already exists'})
+    
     user.surname = request.json.get('surname', user.surname)
     user.name = request.json.get('name', user.name)
     user.age = request.json.get('age', user.age)
@@ -64,6 +68,7 @@ def edit_user():
     user.speciality = request.json.get('speciality', user.speciality)
     user.address = request.json.get('address', user.address)
     user.email = request.json.get('email', user.email)
+    
     db.commit()
     return jsonify({'success': 'OK'})
 
@@ -73,7 +78,6 @@ def delete_user(user_id):
     db = db_session.create_session()
     if not db.query(User).get(user_id):
         return jsonify({'error': 'Not found'})
-    else:
-        db.delete(db.query(User).get(user_id))
-        db.commit()
-        return jsonify({'success': 'OK'})
+    db.delete(db.query(User).get(user_id))
+    db.commit()
+    return jsonify({'success': 'OK'})
