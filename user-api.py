@@ -66,3 +66,14 @@ def edit_user():
     user.email = request.json.get('email', user.email)
     db.commit()
     return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    db = db_session.create_session()
+    if not db.query(User).get(user_id):
+        return jsonify({'error': 'Not found'})
+    else:
+        db.delete(db.query(User).get(user_id))
+        db.commit()
+        return jsonify({'success': 'OK'})
