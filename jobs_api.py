@@ -28,8 +28,7 @@ def get_one_job(job_id):
     
     if not job:
         return jsonify({'error': 'Not found'})
-    return jsonify(
-            {'jobs': job.to_dict(only=('id', 'team_leader', 'job', 'work_size', 'collaborators', 'is_finished'))})
+    return jsonify({'jobs': job.to_dict(only=('id', 'team_leader', 'job', 'work_size', 'collaborators', 'is_finished'))})
 
 
 @blueprint.route('/api/jobs', methods=['POST'])
